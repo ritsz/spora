@@ -1,8 +1,9 @@
 #!/usr/bin/python3
 
 import lxc
-import platform
 import sys
+import platform
+
 
 BASE_CONTAINER = 'LXC_REMOTE'
 _DEBUG_ = False
