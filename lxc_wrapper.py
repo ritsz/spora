@@ -77,7 +77,7 @@ def lxc_kill (container, level = 2) :
 def lxc_start (container) :
 	health_check_stopped(container.name, container);
 	assert container.start(), "Container didn't start"
-	container.wait("RUNNING", 3)
+	container.wait("RUNNING", 5)
 	pr_debug("<debug> Container has been started")
 	health_check_started(container.name, container)
 	return container
@@ -95,7 +95,8 @@ def lxc_main (CONTAINER_NAME, DEBUG) :
 	global _DEBUG_
 	_DEBUG_ = DEBUG
 	container = lxc_create(CONTAINER_NAME)
-#	container = lxc_start(container)
+	if (not container.running):
+		container = lxc_start(container)
 	container.attach(lxc.attach_run_command, ["ifconfig", "eth0"])
 	pr_debug(container.get_ips())
 	
