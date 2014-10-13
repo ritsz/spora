@@ -78,6 +78,5 @@ def server_main(CONTAINER_NAME, SERVER_TYPE, SRC_PORT, DST_PORT) :
 
 
 if __name__ == '__main__' :
-#	server_main(sys.argv[1], sys.argv[2], sys.argv[3], sys.argv[4])
-	arguments = docopt(__doc__, version='SPORA SERVER 0.1')
-	print(arguments)
+	args = docopt(__doc__, version='SPORA SERVER 0.1')
+	server_main(args['--name'], args['--type'], args['--src_port'], args['--dest_port'])	
