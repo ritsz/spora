@@ -1,8 +1,29 @@
 #!/usr/bin/python3
 
+"""SPORA SERVER.
+
+Usage:
+  server_script.py (-h | --help)
+  server_script.py --name=<name> --type=<server> --src_port=<kn> --dest_port=<kn> [--pcap=<file>]
+  server_script.py --name=<name> --type=<server> --src_port=<kn> --dest_port=<kn> [--pcap=<file>] [--debug=<True>] [--new]
+  server_script.py --version
+
+Options:
+  -h --help     	Show this screen.
+  --debug=<True>	Show debug messages 
+  --version     	Show version.
+  --name=<name>  	Name of server
+  --type=<server>	Type of Server
+  --src_port=<kn>	Local port for server
+  --dest_port=<kn>	Port on which container is handling the server
+  --pcap=<file>		Perform packet capture and save in <file>
+"""
+
+
 import lxc
 import sys
 import time
+from docopt import docopt
 import subprocess
 import lxc_wrapper
 
@@ -57,4 +78,6 @@ def server_main(CONTAINER_NAME, SERVER_TYPE, SRC_PORT, DST_PORT) :
 
 
 if __name__ == '__main__' :
-	server_main(sys.argv[1], sys.argv[2], sys.argv[3], sys.argv[4])
+#	server_main(sys.argv[1], sys.argv[2], sys.argv[3], sys.argv[4])
+	arguments = docopt(__doc__, version='SPORA SERVER 0.1')
+	print(arguments)
