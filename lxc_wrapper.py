@@ -17,6 +17,16 @@ def pr_debug(debug_log) :
 
 
 
+def ip_from_name(CONTAINER_NAME):
+	assert lxc.list_containers().count(CONTAINER_NAME), "The container " + CONTAINER_NAME + " doesn't exist"
+	container = lxc.Container(CONTAINER_NAME)
+	if (container.running):
+		return container.get_ips()[0]
+	else:
+		return None
+
+
+
 def health_check_stopped(CONTAINER_NAME, container) :
 	assert(container.config_file_name == "%s/%s/config" %(lxc.default_config_path, CONTAINER_NAME))
 	assert container.init_pid == -1, "Container is already RUNNING"
@@ -86,8 +96,11 @@ def lxc_start (container) :
 
 def lxc_attach_process (container, command_str):
 	assert container.running, "Container not running. Process not attached"
-	pid = container.attach(lxc.attach_run_command, command_str.split(" "))
-	return pid
+	try:
+		pid = container.attach(lxc.attach_run_command, command_str.split(" "))
+		return pid
+	except OSError:
+		print("Not able to attach '", command_str, "' to the container", container.name)
 	
 
 
