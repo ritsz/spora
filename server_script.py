@@ -14,26 +14,27 @@
 
 Usage:
   server_script.py (-h | --help)
-  server_script.py --name=<name> --type=<server> --src_port=<kn> --dest_port=<kn> [--args <args>...] [--pcap=<file>]
-  server_script.py --name=<name> --type=<server> --src_port=<kn> --dest_port=<kn> [--args <args>...] [--pcap=<file>] [--debug=<True>] [--new]
+  server_script.py --name=<name> --type=<server> [--src_port=<kn>] [--dest_port=<kn>] [--args <args>...] [--pcap=<file>]
+  server_script.py --name=<name> --type=<server> [--src_port=<kn>] [--dest_port=<kn>] [--args <args>...] [--pcap=<file>] [--debug ] [--new]
   server_script.py --name=<name> --src_port=<kn> --dest_port=<kn> --del
   server_script.py --name=<name> --copy_from=<path> --copy_to=<path>
-  server_script.py --name=<name> --cmd=<command>
+  server_script.py --name=<name> --cmd=<command> [--wait]
   server_script.py --name=<name> --shell
   server_script.py --version
 
 Options:
-  -h --help     	Show this screen.
-  --debug=<True>	Show debug messages 
-  --version     	Show version.
-  --name=<name>  	Name of server
-  --type=<server>	Type of Server
-  --src_port=<sp>	Local port for server
-  --dest_port=<dp>	Port on which container is handling the server
-  --pcap=<file>		Perform packet capture and save in <file>
-  --copy_from==<path>   Copy file from path
-  --copy_to==<path>	Copy file to path
+  -h --help             Show this screen.
+  --debug               Show debug messages  
+  --version             Show version.
+  --name=<name>         Name of server
+  --type=<server>       Type of Server
+  --src_port=<sp>       Local port for server
+  --dest_port=<dp>      Port on which container is handling the server 
+  --pcap=<file>         Perform packet capture and save in <file>
+  --copy_from==<path>   Copy file from path 
+  --copy_to==<path>	Copy file to path 
   --cmd=<command>	Command to attach to the server container
+  --wait                Wait for command to finish [default: False]
   --args <args>...	Repeated arguments required as configs in case of some servers
 """
 
@@ -102,6 +103,7 @@ def copy_file(__container, FROM, TO):
 	copy_to = rootfs_path + TO
 	copy_command = 'cp -vR ' + FROM + ' ' + copy_to
 	print(copy_command)
+	subprocess.call(copy_command.split(' '))
 
 
 
@@ -119,7 +121,7 @@ if __name__ == '__main__' :
 		exit()
 	
 	if args['--cmd']:
-		lxc_wrapper.lxc_attach_process_name(__container.name, args['--cmd'])
+		lxc_wrapper.lxc_attach_process_name(__container.name, args['--cmd'], args['--wait'])
 		exit()
 	
 	

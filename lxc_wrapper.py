@@ -107,15 +107,15 @@ def lxc_attach_process (container, command_str, wait=False):
 		else:
 			pid = container.attach_wait(lxc.attach_run_command, command_str.split(" "))
 
-		return pid
+		print(pid)
 	except OSError:
 		print("Not able to attach '", command_str, "' to the container", container.name)
 	
 
 
-def lxc_attach_process_name (CONTAINER_NAME, command_str):
+def lxc_attach_process_name (CONTAINER_NAME, command_str, wait=False):
 	container = lxc.Container(CONTAINER_NAME)
-	lxc_attach_process(container, command_str, True)
+	lxc_attach_process(container, command_str, wait)
 
 
 
