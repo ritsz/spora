@@ -30,7 +30,7 @@ if __name__ == 	'__main__':
 			print('--dir argument is not a valid path')
 			exit()
 	handler = http.server.SimpleHTTPRequestHandler
-	sock = socketserver.TCPServer(('', int(args['--src_port'])), handler)
+	sock = socketserver.ThreadingTCPServer(('', int(args['--src_port'])), handler)
 	sock.allow_reuse_address = True
 	sock.serve_forever()	
 
