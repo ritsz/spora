@@ -6,6 +6,7 @@
 ## 2> Option to create a new container and then
 ## 	2.1> Option to copy server script into rootfs
 ## 3> Add pcap start stop support
+## 4> Add help string to all functions
 
 """SPORA SERVER.
 
@@ -38,7 +39,8 @@ import lxc_wrapper
 BASE_CONTAINER = 'LXC_REMOTE'
 
 class server_class :
-	def __init__(self, _container, type_of_server, src_port, dst_port, pcap_file = None):
+	def __init__(self, _container, type_of_server, src_port, dst_port, 
+							pcap_file = None):
 		self.container 	=	_container
 		self.name 	= 	_container.name
 		self.srv_type 	= 	type_of_server

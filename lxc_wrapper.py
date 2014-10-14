@@ -61,13 +61,16 @@ def __lxc_create (container):
 
 
 
-def lxc_create (container_name) :
+def lxc_create (container_name, new = False) :
 	container = lxc.Container(container_name)
 	if container.defined == True :
 		pr_debug("<debug> Conatiner is already defined, return the object.");
-	else :
+	elif new == False:
 		pr_debug("<debug> Creating container.");
 		container = __lxc_create(container)
+	else:
+		#TODO : Create new container and return object
+		return None
 	
 	return container
 
