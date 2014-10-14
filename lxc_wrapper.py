@@ -45,7 +45,7 @@ def health_check_started(CONTAINER_NAME, container) :
 
 
 
-def __lxc_create (container):
+def __lxc_clone (container):
 	# Check if base container is installed
 	assert lxc.list_containers().count(BASE_CONTAINER), "The container " + BASE_CONTAINER + " doesn't exist"
 	# Check platform details
@@ -66,11 +66,13 @@ def lxc_create (container_name, new = False) :
 	if container.defined == True :
 		pr_debug("<debug> Conatiner is already defined, return the object.");
 	elif new == False:
-		pr_debug("<debug> Creating container.");
-		container = __lxc_create(container)
+		pr_debug("<debug> Cloning base  container.");
+		container = __lxc_clone(container)
 	else:
 		#TODO : Create new container and return object
-		return None
+		pr_debug("<debug> Creating a new container")
+		container.create('sshd')
+		health_check_stopped(container.name, container)
 	
 	return container
 
@@ -97,24 +99,37 @@ def lxc_start (container) :
 
 
 
-def lxc_attach_process (container, command_str):
+def lxc_attach_process (container, command_str, wait=False):
 	assert container.running, "Container not running. Process not attached"
 	try:
-		pid = container.attach(lxc.attach_run_command, command_str.split(" "))
+		if wait == False:
+			pid = container.attach(lxc.attach_run_command, command_str.split(" "))
+		else:
+			pid = container.attach_wait(lxc.attach_run_command, command_str.split(" "))
+
 		return pid
 	except OSError:
 		print("Not able to attach '", command_str, "' to the container", container.name)
 	
 
 
-def lxc_main (CONTAINER_NAME, DEBUG) :	
+def lxc_attach_process_name (CONTAINER_NAME, command_str):
+	container = lxc.Container(CONTAINER_NAME)
+	lxc_attach_process(container, command_str, True)
+
+
+
+def lxc_attach_shell (container):
+	assert container.running, "Container not running. Shell not available"
+	container.attach_wait(lxc.attach_run_shell)
+
+
+def lxc_main (CONTAINER_NAME, NEW, DEBUG) :	
 	global _DEBUG_
 	_DEBUG_ = DEBUG
-	container = lxc_create(CONTAINER_NAME)
+	container = lxc_create(CONTAINER_NAME, NEW)
 	if (not container.running):
 		container = lxc_start(container)
-	container.attach(lxc.attach_run_command, ["ifconfig", "eth0"])
-	pr_debug(container.get_ips())
 	
 	return container
 
