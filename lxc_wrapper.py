@@ -5,7 +5,7 @@ import sys
 import platform
 
 
-BASE_CONTAINER = 'LXC_REMOTE'
+BASE_CONTAINER = 'LXC_HTTP'
 _DEBUG_ = False
 
 
@@ -47,12 +47,13 @@ def health_check_started(CONTAINER_NAME, container) :
 
 def __lxc_clone (container):
 	# Check if base container is installed
+	pr_debug("<debug> Check if " + BASE_CONTAINER + " is present")
 	assert lxc.list_containers().count(BASE_CONTAINER), "The container " + BASE_CONTAINER + " doesn't exist"
-	# Check platform details
-	assert platform.architecture()[0] == '32bit', "Support for 64 bit not available yet"
-	assert platform.processor() == "i686", "x86_64 processors not supported currently"
 	# Clone base container with new name
-	assert container.clone(BASE_CONTAINER), 'Cloning was unsuccessful'
+	NAME = container.name
+	base_container = lxc.Container(BASE_CONTAINER)
+	container = base_container.clone(NAME) 
+	assert container, 'Cloning was unsuccessful for ' + BASE_CONTAINER
 	pr_debug("<debug> Container was successfully cloned from the base container.")
 	# Check config details and health
 	health_check_stopped(container.name, container)
@@ -124,9 +125,14 @@ def lxc_attach_shell (container):
 	container.attach_wait(lxc.attach_run_shell)
 
 
-def lxc_main (CONTAINER_NAME, TEMPLATE, NEW, DEBUG) :	
+def lxc_main (CONTAINER_NAME, BASE, TEMPLATE, NEW, DEBUG) :	
 	global _DEBUG_
+	global BASE_CONTAINER
 	_DEBUG_ = DEBUG
+	
+	if BASE:
+		BASE_CONTAINER = BASE	
+	
 	container = lxc_create(CONTAINER_NAME, TEMPLATE, NEW)
 	if (not container.running):
 		container = lxc_start(container)
