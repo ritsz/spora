@@ -61,17 +61,17 @@ def __lxc_clone (container):
 
 
 
-def lxc_create (container_name, new = False) :
+def lxc_create (container_name, template, new = False) :
 	container = lxc.Container(container_name)
 	if container.defined == True :
 		pr_debug("<debug> Conatiner is already defined, return the object.");
 	elif new == False:
-		pr_debug("<debug> Cloning base  container.");
+		pr_debug("<debug> Cloning base container. Igonring the --template argumnets");
 		container = __lxc_clone(container)
 	else:
 		#TODO : Create new container and return object
 		pr_debug("<debug> Creating a new container")
-		container.create('sshd')
+		container.create(template)
 		health_check_stopped(container.name, container)
 	
 	return container
@@ -124,10 +124,10 @@ def lxc_attach_shell (container):
 	container.attach_wait(lxc.attach_run_shell)
 
 
-def lxc_main (CONTAINER_NAME, NEW, DEBUG) :	
+def lxc_main (CONTAINER_NAME, TEMPLATE, NEW, DEBUG) :	
 	global _DEBUG_
 	_DEBUG_ = DEBUG
-	container = lxc_create(CONTAINER_NAME, NEW)
+	container = lxc_create(CONTAINER_NAME, TEMPLATE, NEW)
 	if (not container.running):
 		container = lxc_start(container)
 	

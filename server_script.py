@@ -14,9 +14,9 @@
 
 Usage:
   server_script.py (-h | --help)
-  server_script.py --name=<name> --type=<server> [--src_port=<kn>] [--dest_port=<kn>] [--args <args>...] [--pcap=<file>]
-  server_script.py --name=<name> --type=<server> [--src_port=<kn>] [--dest_port=<kn>] [--args <args>...] [--pcap=<file>] [--debug ] [--new]
-  server_script.py --name=<name> --src_port=<kn> --dest_port=<kn> --del
+  server_script.py --name=<name> [--template=tp] --type=<server> --intf=<intf> [--src_port=<kn>] [--dest_port=<kn>] [--args <args>...] [--pcap=<file>]
+  server_script.py --name=<name> [--template=<tp>] --type=<server> --intf=<intf> [--src_port=<kn>] [--dest_port=<kn>] [--args <args>...] [--pcap=<file>] [--debug ] [--new]
+  server_script.py --name=<name> [--type=<server>] --src_port=<kn> --intf=<intf> --dest_port=<kn> --del
   server_script.py --name=<name> --copy_from=<path> --copy_to=<path>
   server_script.py --name=<name> --cmd=<command> [--wait]
   server_script.py --name=<name> --shell
@@ -27,7 +27,9 @@ Options:
   --debug               Show debug messages  
   --version             Show version.
   --name=<name>         Name of server
+  --template=tp         Template to use for container [default: sshd]
   --type=<server>       Type of Server
+  --intf=<intf>         Interface to start the server on.
   --src_port=<sp>       Local port for server
   --dest_port=<dp>      Port on which container is handling the server 
   --pcap=<file>         Perform packet capture and save in <file>
@@ -86,15 +88,17 @@ def del_iptable(INTF, SRC_PORT, DEST_IP, DEST_PORT) :
 
 
 
-def server_main(CONTAINER_NAME, SERVER_TYPE, SRC_PORT, DST_PORT, DEBUG, NEW) :
-	assert lxc.list_containers().count(BASE_CONTAINER)
-	container = lxc_wrapper.lxc_main(CONTAINER_NAME, NEW, DEBUG) 
+def server_main(CONTAINER_NAME, TEMPLATE, SERVER_TYPE, INTF, SRC_PORT, DST_PORT, DEBUG, NEW) :
+	if NEW == False:
+		assert lxc.list_containers().count(BASE_CONTAINER)
+
+	container = lxc_wrapper.lxc_main(CONTAINER_NAME, TEMPLATE, NEW, DEBUG)
 	time.sleep(5)
 	ip_addr = container.get_ips()[0]
 	
 	if SERVER_TYPE == 'http' :
 		lxc_wrapper.lxc_attach_process(container, "python3 -m http.server " + DST_PORT)
-		add_iptable("eth0", SRC_PORT, ip_addr, DST_PORT)
+		add_iptable(INTF, SRC_PORT, ip_addr, DST_PORT)
 		http_server = server_class(container, 'http', SRC_PORT, DST_PORT)
 	
 
@@ -131,10 +135,10 @@ if __name__ == '__main__' :
 			copy_file(__container, args['--copy_from'], args['--copy_to'])
 			exit()
 		
-		server_main(args['--name'], args['--type'], args['--src_port'], args['--dest_port'], args['--debug'], args['--new'])
+		server_main(args['--name'], args['--template'], args['--type'], args['--intf'], args['--src_port'], args['--dest_port'], args['--debug'], args['--new'])
 	
 	else :
-		del_iptable('eth0', args['--src_port'], lxc_wrapper.ip_from_name(args['--name']), args['--dest_port'])
+		del_iptable(args['--intf'], args['--src_port'], lxc_wrapper.ip_from_name(args['--name']), args['--dest_port'])
 		lxc_wrapper.lxc_kill(__container)
 		
 		if args['--pcap']:
