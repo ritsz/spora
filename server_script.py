@@ -109,6 +109,15 @@ def server_main(CONTAINER_NAME, TEMPLATE, SERVER_TYPE, INTF, SRC_PORT, DST_PORT,
 		lxc_wrapper.lxc_attach_process(container, ftp_cmd)
 		add_iptable(INTF, SRC_PORT, ip_addr, DST_PORT)
 		ftp_server = server_class(container, 'ftp', SRC_PORT, DST_PORT)
+	
+	if SERVER_TYPE == 'https':
+		if NEW:
+			copy_file(container, 'https_server.py', '.')
+			copy_file(container, 'privcert.pem', '.')
+		https_cmd = "./https_server.py " + DST_PORT
+		lxc_wrapper.lxc_attach_process(container, https_cmd)
+		add_iptable(INTF, SRC_PORT, ip_addr, DST_PORT)
+		https_server = server_class(container, 'https', SRC_PORT, DST_PORT)
 		
 		
 
