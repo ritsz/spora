@@ -2,7 +2,6 @@
 
 ################
 ## TODO
-## 2> Add pcap start stop support
 ## 3> Edit config and cgroup values via commandline
 ## 4> Add help string to all functions
 
@@ -16,6 +15,7 @@ Usage:
   server_script.py --name=<name> --copy_from=<path> --copy_to=<path>
   server_script.py --name=<name> --cmd=<command> [--wait]
   server_script.py --name=<name> --shell
+  server_script.py --name=<name> --stats [--all]
   server_script.py --version
 
 Options:
@@ -34,6 +34,8 @@ Options:
   --copy_to==<path>	Copy file to path 
   --cmd=<command>	Command to attach to the server container
   --wait                Wait for command to finish [default: False]
+  --stats  		Show network stats
+  --all   		Show stats with --stats for all interfaces
   --args <args>...	Repeated arguments required as configs in case of some servers
 """
 
@@ -44,6 +46,7 @@ import time
 from docopt import docopt
 import subprocess
 import lxc_wrapper
+import network_stat
 
 BASE_CONTAINER = 'LXC_HTTP'
 
@@ -133,7 +136,16 @@ def copy_file(__container, FROM, TO):
 
 if __name__ == '__main__' :
 	args = docopt(__doc__, version='SPORA SERVER 0.1')
-	print(args)
+	
+	if args['--debug']:
+		print(args)
+	
+	if args['--all'] and args['--stats']:
+		network_stat.show_stat()
+		exit()
+	elif (not args['--all']) and args['--stats']:
+		network_stat.show_stat(args['--name'])
+		exit()
 	
 	if args['--base']:
 		BASE_CONTAINER = args['--base']
