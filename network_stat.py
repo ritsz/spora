@@ -19,15 +19,17 @@ def human_readable(num):
 
 def make_stat_dict(stat_list):
 	
+	# The RX stats for our veth interface will be TX inside the container, vice versa
+	# Hence the change b/w tx and rx from proc file to dictionary
 	stat_dict = dict()
-	stat_dict['rx_bytes'] = human_readable(int(stat_list[1]))
-	stat_dict['rx_pkts'] = stat_list[2]
-	stat_dict['rx_err'] = stat_list[3]
-	stat_dict['rx_drop'] = stat_list[4]
-	stat_dict['tx_bytes'] = human_readable(int(stat_list[9]))
-	stat_dict['tx_pkts'] = stat_list[10]
-	stat_dict['tx_err'] = stat_list[11]
-	stat_dict['tx_drop'] = stat_list[12]
+	stat_dict['tx_bytes'] = human_readable(int(stat_list[1]))
+	stat_dict['tx_pkts'] = stat_list[2]
+	stat_dict['tx_err'] = stat_list[3]
+	stat_dict['tx_drop'] = stat_list[4]
+	stat_dict['rx_bytes'] = human_readable(int(stat_list[9]))
+	stat_dict['rx_pkts'] = stat_list[10]
+	stat_dict['rx_err'] = stat_list[11]
+	stat_dict['rx_drop'] = stat_list[12]
 	return stat_dict
 
 #Match all veth interface by default.
@@ -61,5 +63,4 @@ def show_stat(NAME = None):
 	if NAME is None:
 		display_stat()
 	else:
-		#_intf = lxc_wrapper.name_to_interface(NAME)
-		display_stat()
+		display_stat('veth'+NAME)

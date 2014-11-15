@@ -74,7 +74,8 @@ def lxc_create (container_name, template, new = False) :
 		pr_debug("<debug> Creating a new container")
 		container.create(template)
 		health_check_stopped(container.name, container)
-	
+
+	assert container.append_config_item('lxc.network.veth.pair', 'veth'+container_name), "Can't change container's interface name"	
 	return container
 
 def lxc_kill (container, level = 2) :
