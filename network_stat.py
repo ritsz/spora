@@ -57,7 +57,7 @@ def display_stat(intf = None, FILE = None):
 		stats = interface_stat()
 	else:
 		stats = interface_stat(intf)
-	for interface in stats.keys():
+	for interface in sorted(stats.keys()):
 		stat_str = interface+"\t"+stats[interface]['rx_pkts']+"\t"+stats[interface]['rx_bytes']+"\t"+stats[interface]['rx_err']+"\t"+stats[interface]['rx_drop']+"\t"+stats[interface]['tx_pkts']+"\t"+stats[interface]['tx_bytes']+"\t"+stats[interface]['tx_err']+"\t"+stats[interface]['tx_drop']
 		FILE.write(stat_str+'\n')
 		print(stat_str)

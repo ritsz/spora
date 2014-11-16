@@ -9,7 +9,7 @@ Usage:
 
 Options:
   -h --help             Show this screen.
-  --url=<url>  		URL to open. Can be ftp, http, https links 
+  --url=<url>  		URL to open. Can be ftp, http, https links. Multiple url separated by space 
   --session=<num>  	Number of sessions to start
   --parallel  		Start sessions in parallel
   --force_cmd  		Force to use urllib instead of webbrowser even if X Server is running
@@ -35,16 +35,15 @@ WORKER_COUNT = 2
 
 def worker(work_queue, done_queue):
 	try:
-		for url in iter(work_queue.get, 'STOP'):
-			status_code = print_site_status(url)
+		for url_list in iter(work_queue.get, 'STOP'):
+			status_code = parallel_site(url_list)
 			done_queue.put("%s - %s got %s." % (current_process().name, url, status_code))
 	except Exception as e:
 		done_queue.put("%s failed on %s with: %s" % (current_process().name, url, e.message))
 	return True
 
-def print_site_status(url):
-	print("Opening")
-	client_main(url, 1)
+def parallel_site(URL_LIST):
+	client_main(URL_LIST, 1)
 	return True
 
 
@@ -65,21 +64,21 @@ def webbrowser_handler(URL, SESSIONS):
 		except ConnectionResetError:
 			print('Connection Error')
 
-def parallel_main(url, session):
-	sites = [url]*session
+def parallel_main(URL_LIST, SESSION):
+	sites = [URL_LIST]*SESSION
 	workers = WORKER_COUNT
 	work_queue = Queue()
 	done_queue = Queue()
-	processes = []	
-	for url in sites:
-		print(url)
-		work_queue.put(url)
+	processes = []
+	for url_list in sites:
+		work_queue.put(url_list)
 
 	for w in range(workers):
 		p = Process(target=worker, args=(work_queue, done_queue))
 		p.start()
 		processes.append(p)
-		work_queue.put('STOP')
+
+	work_queue.put('STOP')
 
 	for p in processes:
 		p.join()
@@ -90,11 +89,12 @@ def parallel_main(url, session):
 		print(status)
 
 
-def client_main(URL, SESSIONS):
-	if USE_URLLIB:
-		urllib_handler(URL, SESSIONS)
-	else:
-		webbrowser_handler(URL, SESSIONS)
+def client_main(URL_LIST, SESSIONS):
+	for URL in URL_LIST.split():
+		if USE_URLLIB:
+			urllib_handler(URL, SESSIONS)
+		else:
+			webbrowser_handler(URL, SESSIONS)
 
 
 if __name__ == '__main__' :
