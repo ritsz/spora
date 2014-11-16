@@ -49,22 +49,25 @@ def interface_stat(match_intf = 'veth\S+'):
 	return stats
 
 
-def display_stat(intf = None):
+def display_stat(intf = None, FILE = None):
 	head_str = "Interface\tRX-Pkt\tRX-Bytes\tRX-Err\tRX-Drop\tTX-Pkt\tTX-Bytes\tTX-Err\tTX-Drop"
 	print(head_str)
+	FILE.write(head_str+'\n')
 	if intf is None:
 		stats = interface_stat()
 	else:
 		stats = interface_stat(intf)
 	for interface in stats.keys():
 		stat_str = interface+"\t"+stats[interface]['rx_pkts']+"\t"+stats[interface]['rx_bytes']+"\t"+stats[interface]['rx_err']+"\t"+stats[interface]['rx_drop']+"\t"+stats[interface]['tx_pkts']+"\t"+stats[interface]['tx_bytes']+"\t"+stats[interface]['tx_err']+"\t"+stats[interface]['tx_drop']
+		FILE.write(stat_str+'\n')
 		print(stat_str)
 
 
 # If no name provided, print all stats
 def show_stat(NAME = None, FILE = 'lxc_stat.txt'):
-	if NAME is None:
-		display_stat()
-	else:
-		display_stat('veth'+NAME)
+	with open(FILE, 'a') as log_file:
+		if NAME is None:
+			display_stat(FILE = log_file)
+		else:
+			display_stat('veth'+NAME, log_file)
 

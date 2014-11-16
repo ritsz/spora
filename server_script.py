@@ -15,7 +15,7 @@ Usage:
   server_script.py --name=<name> --copy_from=<path> --copy_to=<path>
   server_script.py --name=<name> --cmd=<command> [--wait]
   server_script.py --name=<name> --shell
-  server_script.py --name=<name> --stats [--all] [--file=file]
+  server_script.py --name=<name> --stats [--all] [--file=<file>]
   server_script.py --version
 
 Options:
@@ -35,8 +35,8 @@ Options:
   --cmd=<command>	Command to attach to the server container
   --wait                Wait for command to finish [default: False]
   --stats  		Show network stats
-  --all   		Show stats with --stats for all interfaces
-  --file=file  		File to write the stats into
+  --all   		Show stats for all interfaces
+  --file=<file>   	File name to write stats to
   --args <args>...	Repeated arguments required as configs in case of some servers
 """
 
@@ -138,8 +138,8 @@ def copy_file(__container, FROM, TO):
 if __name__ == '__main__' :
 	args = docopt(__doc__, version='SPORA SERVER 0.1')
 	
-	if args['--debug']:
-		print(args)
+	#if args['--debug']:
+	print(args)
 	
 	if args['--all'] and args['--stats']:
 		if args['--file']:
