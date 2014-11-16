@@ -24,7 +24,19 @@ import time
 import webbrowser
 from docopt import docopt
 import urllib.request as url
+import threading
 
+class myThread (threading.Thread):
+	def __init__(self, threadID, name, counter, url):
+		threading.Thread.__init__(self)
+		self.threadID = threadID
+		self.name = name
+		self.counter = counter
+		self.url = url
+	def run(self):
+		print("Starting " + self.name)
+		client_main(self.url, 1)
+        
 
 USE_URLLIB = False
 TRY_PARALLEL = False
@@ -38,7 +50,16 @@ def urllib_handler(URL, SESSIONS):
 def webbrowser_handler(URL, SESSIONS):
 	for i in range(SESSIONS):
 		time.sleep(SLEEPY_TIME)
-		webbrowser.open_new_tab(url)
+		webbrowser.open_new_tab(URL)
+
+def client_main(URL, SESSIONS):
+	try:
+		if USE_URLLIB:
+			urllib_handler(URL, SESSIONS)
+		else:
+			webbrowser_handler(URL, SESSIONS)
+	except urllib.error.URLError:
+		print('Connection not successful for ' + URL)
 
 if __name__ == '__main__' :
 	args = docopt(__doc__, version='SPORA CLIENT 0.1')
@@ -64,7 +85,9 @@ if __name__ == '__main__' :
 		TRY_PARALLEL = True
 
 	
-	if USE_URLLIB:
-		urllib_handler(args['--url'], int(args['--session']))
-	else:	
-		webbrowser_handler(args['--url'], int(args['--session']))
+	if not TRY_PARALLEL:
+		client_main(args['--url'], int(args['--session']))
+	else:
+		for i in range(int(args['--session'])):
+			thread = myThread(1, "Thread" + str(i), 1, args['--url'])	
+			thread.start()
