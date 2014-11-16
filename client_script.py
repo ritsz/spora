@@ -5,7 +5,7 @@
 Usage:
   client_script.py (-h | --help)
   client_script.py --version
-  client_script.py --url=<url> [--force_cmd | --force_browser] --session=<num> [--parallel] [--time=<ts>]
+  client_script.py --url=<url> [--force_cmd | --force_browser] --session=<num> [--parallel] [--time=<ts>] [--workers=<th>]
 
 Options:
   -h --help             Show this screen.
@@ -15,6 +15,7 @@ Options:
   --force_cmd  		Force to use urllib instead of webbrowser even if X Server is running
   --force_broswer       Force to use the browser
   --time=<ts>   	Time in seconds between every request. Ignored in case of parallel
+  --workers=<th>        Number of tasks running in parallel. Default is 2
   --version             Show version.
 """
 
@@ -24,42 +25,77 @@ import time
 import webbrowser
 from docopt import docopt
 import urllib.request as url
-import threading
+from multiprocessing import Lock, Process, Queue, current_process
 
-class myThread (threading.Thread):
-	def __init__(self, threadID, name, counter, url):
-		threading.Thread.__init__(self)
-		self.threadID = threadID
-		self.name = name
-		self.counter = counter
-		self.url = url
-	def run(self):
-		print("Starting " + self.name)
-		client_main(self.url, 1)
-        
 
 USE_URLLIB = False
 TRY_PARALLEL = False
 SLEEPY_TIME = 0
+WORKER_COUNT = 2
+
+def worker(work_queue, done_queue):
+	try:
+		for url in iter(work_queue.get, 'STOP'):
+			status_code = print_site_status(url)
+			done_queue.put("%s - %s got %s." % (current_process().name, url, status_code))
+	except Exception as e:
+		done_queue.put("%s failed on %s with: %s" % (current_process().name, url, e.message))
+	return True
+
+def print_site_status(url):
+	print("Opening")
+	client_main(url, 1)
+	return True
+
 
 def urllib_handler(URL, SESSIONS):
 	for i in range(SESSIONS):
 		time.sleep(SLEEPY_TIME)
-		ufd = url.urlretrieve(URL)
+		try:
+			ufd = url.urlretrieve(URL)
+		except ConnectionResetError:
+			print("Connection Error")
+
 
 def webbrowser_handler(URL, SESSIONS):
 	for i in range(SESSIONS):
 		time.sleep(SLEEPY_TIME)
-		webbrowser.open_new_tab(URL)
+		try:
+			webbrowser.open_new_tab(URL)
+		except ConnectionResetError:
+			print('Connection Error')
+
+def parallel_main(url, session):
+	sites = [url]*session
+	workers = WORKER_COUNT
+	work_queue = Queue()
+	done_queue = Queue()
+	processes = []	
+	for url in sites:
+		print(url)
+		work_queue.put(url)
+
+	for w in range(workers):
+		p = Process(target=worker, args=(work_queue, done_queue))
+		p.start()
+		processes.append(p)
+		work_queue.put('STOP')
+
+	for p in processes:
+		p.join()
+
+	done_queue.put('STOP')
+
+	for status in iter(done_queue.get, 'STOP'):
+		print(status)
+
 
 def client_main(URL, SESSIONS):
-	try:
-		if USE_URLLIB:
-			urllib_handler(URL, SESSIONS)
-		else:
-			webbrowser_handler(URL, SESSIONS)
-	except urllib.error.URLError:
-		print('Connection not successful for ' + URL)
+	if USE_URLLIB:
+		urllib_handler(URL, SESSIONS)
+	else:
+		webbrowser_handler(URL, SESSIONS)
+
 
 if __name__ == '__main__' :
 	args = docopt(__doc__, version='SPORA CLIENT 0.1')
@@ -83,11 +119,10 @@ if __name__ == '__main__' :
 	
 	if args['--parallel']:
 		TRY_PARALLEL = True
-
-	
+	if args['--workers']:
+		WORKER_COUNT = int(args['--workers'])	
 	if not TRY_PARALLEL:
 		client_main(args['--url'], int(args['--session']))
 	else:
-		for i in range(int(args['--session'])):
-			thread = myThread(1, "Thread" + str(i), 1, args['--url'])	
-			thread.start()
+		parallel_main(args['--url'], int(args['--session']))
+			
