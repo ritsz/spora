@@ -15,7 +15,7 @@ Usage:
   server_script.py --name=<name> --copy_from=<path> --copy_to=<path>
   server_script.py --name=<name> --cmd=<command> [--wait]
   server_script.py --name=<name> --shell
-  server_script.py --name=<name> --stats [--all]
+  server_script.py --name=<name> --stats [--all] [--file=file]
   server_script.py --version
 
 Options:
@@ -36,6 +36,7 @@ Options:
   --wait                Wait for command to finish [default: False]
   --stats  		Show network stats
   --all   		Show stats with --stats for all interfaces
+  --file=file  		File to write the stats into
   --args <args>...	Repeated arguments required as configs in case of some servers
 """
 
@@ -141,10 +142,16 @@ if __name__ == '__main__' :
 		print(args)
 	
 	if args['--all'] and args['--stats']:
-		network_stat.show_stat()
+		if args['--file']:
+			network_stat.show_stat(FILE = args['--file'])
+		else:
+			network_stat.show_stat()
 		exit()
 	elif (not args['--all']) and args['--stats']:
-		network_stat.show_stat(args['--name'])
+		if args['--file']:
+			network_stat.show_stat(args['--name'], args['--file'])
+		else:
+			network_stat.show_stat(args['--name'])			
 		exit()
 	
 	if args['--base']:

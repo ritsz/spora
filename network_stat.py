@@ -2,7 +2,6 @@
 
 import os
 import re
-import lxc_wrapper
 
 INTF_FILE = '/proc/net/if_inet6'
 STAT_FILE = '/proc/net/dev'
@@ -39,6 +38,8 @@ def interface_stat(match_intf = 'veth\S+'):
 	
 	stats = dict()
 	with open(STAT_FILE, 'r') as stat_file:
+		if not stat_file:
+			print('Couldn\'t open the procfs file')
 		# LETS USE GENERATORS, SHALL WE
 		for line in (x for x in stat_file if re.match(match_intf, x)): 
 			lis = line.split()
@@ -49,18 +50,21 @@ def interface_stat(match_intf = 'veth\S+'):
 
 
 def display_stat(intf = None):
-	print("Interface\tRX-Pkt\tRX-Bytes\tRX-Err\tRX-Drop\tTX-Pkt\tTX-Bytes\tTX-Err\tTX-Drop")
+	head_str = "Interface\tRX-Pkt\tRX-Bytes\tRX-Err\tRX-Drop\tTX-Pkt\tTX-Bytes\tTX-Err\tTX-Drop"
+	print(head_str)
 	if intf is None:
 		stats = interface_stat()
 	else:
 		stats = interface_stat(intf)
 	for interface in stats.keys():
-		print(interface+"\t"+stats[interface]['rx_pkts']+"\t"+stats[interface]['rx_bytes']+"\t"+stats[interface]['rx_err']+"\t"+stats[interface]['rx_drop']+"\t"+stats[interface]['tx_pkts']+"\t"+stats[interface]['tx_bytes']+"\t"+stats[interface]['tx_err']+"\t"+stats[interface]['tx_drop'])
+		stat_str = interface+"\t"+stats[interface]['rx_pkts']+"\t"+stats[interface]['rx_bytes']+"\t"+stats[interface]['rx_err']+"\t"+stats[interface]['rx_drop']+"\t"+stats[interface]['tx_pkts']+"\t"+stats[interface]['tx_bytes']+"\t"+stats[interface]['tx_err']+"\t"+stats[interface]['tx_drop']
+		print(stat_str)
 
 
 # If no name provided, print all stats
-def show_stat(NAME = None):
+def show_stat(NAME = None, FILE = 'lxc_stat.txt'):
 	if NAME is None:
 		display_stat()
 	else:
 		display_stat('veth'+NAME)
+
