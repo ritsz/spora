@@ -138,8 +138,8 @@ def copy_file(__container, FROM, TO):
 if __name__ == '__main__' :
 	args = docopt(__doc__, version='SPORA SERVER 0.1')
 	
-	#if args['--debug']:
-	print(args)
+	if args['--debug']:
+		print(args)
 	
 	if args['--all'] and args['--stats']:
 		if args['--file']:
