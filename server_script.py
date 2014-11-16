@@ -2,9 +2,9 @@
 
 ################
 ## TODO
-## 3> Edit config and cgroup values via commandline
-## 4> Add help string to all functions
-
+## 1> Add Pcap supports
+## 2> Edit config and cgroup values via commandline
+################
 """SPORA SERVER.
 
 Usage:
@@ -79,7 +79,11 @@ def add_iptable(INTF, SRC_PORT, DEST_IP, DEST_PORT) :
 
 
 def del_iptable(INTF, SRC_PORT, DEST_IP, DEST_PORT) :
-	ip_table_rule = "iptables -t nat -D PREROUTING -i " + INTF + " -p tcp --dport " + SRC_PORT + " -j DNAT --to " + DEST_IP + ":" + DEST_PORT
+	if DEST_IP is None:
+		ip_table_rule = "iptables -t nat -F"
+	else:
+		ip_table_rule = "iptables -t nat -D PREROUTING -i " + INTF + " -p tcp --dport " + SRC_PORT + " -j DNAT --to " + DEST_IP + ":" + DEST_PORT
+	
 	print(ip_table_rule)
 	try:
 		subprocess.call(ip_table_rule.split(" "))
