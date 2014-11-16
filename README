@@ -1,0 +1,29 @@
+My first project in LXC containers.
+Uses the lxc bindings in python3 to create containers and apply 
+iptables rules to allow host OS to service multiple types to services. 
+Currently supports http, https, ftp.
+
+Love to hear comments, critique and feedback to make this better. Be nice.
+Thanks.
+
+1. Start Server
+
+** Deploy a http server:
+./server_script.py --name=LXC_HTTP --type=http --template=sshd --intf=eth0 --src_port=80 --dest_port=8080 --debug --new
+
+** Deploy a https server:
+./server_script.py --name=LXC_HTTPS --type=https --template=sshd --intf=eth0 --src_port=443 --dest_port=443 --debug --new
+
+2. Start Client
+
+** A client to connect to <url> with 100 processes running to handle 100000 sessions
+ ./client_script.py --url='https://10.0.3.24' --session=10000 --worker=100 --parallel
+
+3. Collect Stats
+./server_script.py --name=LXC_HTTPS --stats --all
+
+4. Get bash shell or attach a command
+ ./server_script.py --name=LXC_HTTPS --shell
+ ./server_script.py --name=LXC_HTTPS --cmd='ifconfig eth0'
+
+Also suppports copying file to container rootfs, cloning a Container and Deleting a container.
