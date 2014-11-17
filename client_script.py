@@ -36,21 +36,13 @@ WORKER_COUNT = 2
 
 
 def worker(work_queue, done_queue):
-	try:
-		for url_list in iter(work_queue.get, 'STOP'):
-			status_code = parallel_site(url_list)
+	for url_list in iter(work_queue.get, 'STOP'):
+		try:
+			status_code = client_main(url_list, 1)
 			done_queue.put("%s - %s got %s." % (current_process().name, url, status_code))
-	except Exception as e:
-		done_queue.put("%s failed on %s with: %s" % (current_process().name, url, e.message))
+		except Exception as e:
+			done_queue.put("%s failed on %s with: %s" % (current_process().name, url, e.message))
 	return True
-
-
-
-
-def parallel_site(URL_LIST):
-	client_main(URL_LIST, 1)
-	return True
-
 
 
 
@@ -83,24 +75,20 @@ def parallel_main(URL_LIST, SESSION):
 	workers = WORKER_COUNT
 	work_queue = Queue()
 	done_queue = Queue()
-	processes = []
+
 	for url_list in sites:
 		work_queue.put(url_list)
-
 	
 	for w in range(workers):
 		p = Process(target=worker, args=(work_queue, done_queue))
 		p.start()
-		processes.append(p)
-		work_queue.put('STOP')
+		
+	for i in range(len(sites)):
+		done_queue.get()
+	
+	for w in range(workers):
+                work_queue.put('STOP')
 
-	for p in processes:
-		p.join()
-
-	done_queue.put('STOP')
-
-	for status in iter(done_queue.get, 'STOP'):
-		print(status)
 
 def client_main(URL_LIST, SESSIONS):
 	for URL in URL_LIST.split():
@@ -108,7 +96,8 @@ def client_main(URL_LIST, SESSIONS):
 			urllib_handler(URL, SESSIONS)
 		else:
 			webbrowser_handler(URL, SESSIONS)
-
+	
+	return 'OK'
 
 
 
