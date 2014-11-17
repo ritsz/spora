@@ -61,7 +61,7 @@ def webbrowser_handler(URL, SESSIONS):
 		print('OPEN')
 		time.sleep(SLEEPY_TIME)
 		try:
-			webbrowser.open(URL)
+			webbrowser.open_new_tab(URL)
 		except ConnectionResetError:
 			print('Connection Error')
 
@@ -108,7 +108,8 @@ if __name__ == '__main__' :
 	try:
 		display = os.environ['DISPLAY']
 		if display:
-			USE_URLLIB = True 
+			USE_URLLIB = False
+			SLEEPY_TIME = 1
 	except KeyError:
 		display = None
 		USE_URLLIB = True
@@ -117,6 +118,7 @@ if __name__ == '__main__' :
 		USE_URLLIB = True
 	if args['--force_browser']:
 		USE_URLLIB = False
+		SLEEPY_TIME = 1
 	
 	if args['--parallel']:
 		TRY_PARALLEL = True
