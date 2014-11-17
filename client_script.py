@@ -25,7 +25,7 @@ import time
 import webbrowser
 from docopt import docopt
 import urllib.request as url
-from multiprocessing import Lock, Process, Queue, current_process
+from multiprocessing import Lock, Process, Queue, current_process, set_start_method
 
 
 USE_URLLIB = False
@@ -131,16 +131,18 @@ if __name__ == '__main__' :
 		display = os.environ['DISPLAY']
 		if display:
 			USE_URLLIB = False
-			SLEEPY_TIME = 1
+			SLEEPY_TIME = 2
 	except KeyError:
 		display = None
 		USE_URLLIB = True
+		set_start_method('forkserver')
 	
 	if args['--force_cmd']:
 		USE_URLLIB = True
 	if args['--force_browser']:
 		USE_URLLIB = False
-		SLEEPY_TIME = 1
+		SLEEPY_TIME = 2
+		set_start_method('forkserver')
 	
 	if args['--parallel']:
 		TRY_PARALLEL = True
