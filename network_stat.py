@@ -6,6 +6,9 @@ import re
 INTF_FILE = '/proc/net/if_inet6'
 STAT_FILE = '/proc/net/dev'
 
+
+
+
 def human_readable(num):
 	if num < 1024:
 		return str(num)+'B'
@@ -15,6 +18,9 @@ def human_readable(num):
 		return str(float(num)/(1024*1024))[:6] + "MB"
 	else:
 		return str(float(num)/(1024*1024*1024))[:6] + "GB"
+
+
+
 
 def make_stat_dict(stat_list):
 	
@@ -30,6 +36,9 @@ def make_stat_dict(stat_list):
 	stat_dict['rx_err'] = stat_list[11]
 	stat_dict['rx_drop'] = stat_list[12]
 	return stat_dict
+
+
+
 
 #Match all veth interface by default.
 def interface_stat(match_intf = 'veth\S+'):
@@ -49,6 +58,9 @@ def interface_stat(match_intf = 'veth\S+'):
 	return stats
 
 
+
+
+
 def display_stat(intf = None, FILE = None):
 	head_str = "Interface\tRX-Pkt\tRX-Bytes\tRX-Err\tRX-Drop\tTX-Pkt\tTX-Bytes\tTX-Err\tTX-Drop"
 	print(head_str)
@@ -61,6 +73,9 @@ def display_stat(intf = None, FILE = None):
 		stat_str = interface+"\t"+stats[interface]['rx_pkts']+"\t"+stats[interface]['rx_bytes']+"\t"+stats[interface]['rx_err']+"\t"+stats[interface]['rx_drop']+"\t"+stats[interface]['tx_pkts']+"\t"+stats[interface]['tx_bytes']+"\t"+stats[interface]['tx_err']+"\t"+stats[interface]['tx_drop']
 		FILE.write(stat_str+'\n')
 		print(stat_str)
+
+
+
 
 
 # If no name provided, print all stats
