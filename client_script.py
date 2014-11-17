@@ -25,7 +25,7 @@ import time
 import webbrowser
 from docopt import docopt
 import urllib.request as url
-from multiprocessing import Lock, Process, Queue, current_process, set_start_method
+from multiprocessing import Process, Queue, current_process
 
 
 USE_URLLIB = False
@@ -68,7 +68,6 @@ def urllib_handler(URL, SESSIONS):
 
 def webbrowser_handler(URL, SESSIONS):
 	for i in range(SESSIONS):
-		print('OPEN')
 		time.sleep(SLEEPY_TIME)
 		try:
 			webbrowser.open_new_tab(URL)
@@ -103,11 +102,6 @@ def parallel_main(URL_LIST, SESSION):
 	for status in iter(done_queue.get, 'STOP'):
 		print(status)
 
-
-
-
-
-
 def client_main(URL_LIST, SESSIONS):
 	for URL in URL_LIST.split():
 		if USE_URLLIB:
@@ -119,11 +113,9 @@ def client_main(URL_LIST, SESSIONS):
 
 
 
-
 if __name__ == '__main__' :
 	args = docopt(__doc__, version='SPORA CLIENT 0.1')
-	print(args)
-
+	
 	if args['--time']:
 		SLEEPY_TIME = int(args['--time'])
 	
@@ -135,14 +127,12 @@ if __name__ == '__main__' :
 	except KeyError:
 		display = None
 		USE_URLLIB = True
-		set_start_method('forkserver')
 	
 	if args['--force_cmd']:
 		USE_URLLIB = True
 	if args['--force_browser']:
 		USE_URLLIB = False
 		SLEEPY_TIME = 2
-		set_start_method('forkserver')
 	
 	if args['--parallel']:
 		TRY_PARALLEL = True
