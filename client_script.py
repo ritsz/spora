@@ -58,9 +58,10 @@ def urllib_handler(URL, SESSIONS):
 
 def webbrowser_handler(URL, SESSIONS):
 	for i in range(SESSIONS):
+		print('OPEN')
 		time.sleep(SLEEPY_TIME)
 		try:
-			webbrowser.open_new_tab(URL)
+			webbrowser.open(URL)
 		except ConnectionResetError:
 			print('Connection Error')
 
@@ -75,6 +76,7 @@ def parallel_main(URL_LIST, SESSION):
 
 	for w in range(workers):
 		p = Process(target=worker, args=(work_queue, done_queue))
+		print('Start')
 		p.start()
 		processes.append(p)
 		work_queue.put('STOP')
