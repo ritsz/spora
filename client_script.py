@@ -77,8 +77,7 @@ def parallel_main(URL_LIST, SESSION):
 		p = Process(target=worker, args=(work_queue, done_queue))
 		p.start()
 		processes.append(p)
-
-	work_queue.put('STOP')
+		work_queue.put('STOP')
 
 	for p in processes:
 		p.join()
