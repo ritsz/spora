@@ -9,8 +9,8 @@
 
 Usage:
   server_script.py (-h | --help)
-  server_script.py --name=<name> [--base=base] [--template=tp] --type=<server> --intf=<intf> [--src_port=<kn>] [--dest_port=<kn>] [--args <args>...] [--pcap=<file>]
-  server_script.py --name=<name> [--base=base] [--template=<tp>] --type=<server> --intf=<intf> [--src_port=<kn>] [--dest_port=<kn>] [--args <args>...] [--pcap=<file>] [--debug ] [--new]
+  server_script.py --name=<name> [--base=base] [--template=tp] [--type=<server>] --intf=<intf> [--src_port=<kn>] [--dest_port=<kn>] [--args <args>...] [--pcap=<file>]
+  server_script.py --name=<name> [--base=base] [--template=<tp>] [--type=<server>] --intf=<intf> [--src_port=<kn>] [--dest_port=<kn>] [--args <args>...] [--pcap=<file>] [--debug ] [--new]
   server_script.py --name=<name> [--type=<server>] --src_port=<kn> --intf=<intf> --dest_port=<kn> --del
   server_script.py --name=<name> --copy_from=<path> --copy_to=<path>
   server_script.py --name=<name> --cmd=<command> [--wait]
