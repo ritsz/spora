@@ -119,6 +119,7 @@ if __name__ == '__main__' :
 	
 	if args['--force_cmd']:
 		USE_URLLIB = True
+		SLEEPY_TIME = 0
 	if args['--force_browser']:
 		USE_URLLIB = False
 		SLEEPY_TIME = 2
